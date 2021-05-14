@@ -1,0 +1,28 @@
+{
+  "name": "chia-node-append",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ForestCrazy/CHia-Node-Append.git"
+  },
+  "keywords": [
+    "ChiaNetwork",
+    "ChiaBlockchain",
+    "ChiaNode",
+    "ChiaTools"
+  ],
+  "author": "ForestCrazy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ForestCrazy/CHia-Node-Append/issues"
+  },
+  "homepage": "https://github.com/ForestCrazy/CHia-Node-Append#readme",
+  "dependencies": {
+    "chia-api": "^1.1.0"
+  }
+}
