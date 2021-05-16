@@ -1,7 +1,11 @@
 # Chia-Node-Append
 [![Software License](https://img.shields.io/badge/license-GPL--3.0-brightgreen.svg?style=flat-square)](LICENSE)
 
-Tool to automatically add peer nodes
+Tool to automatically add peer nodes up to 100 connections
+
+## chia-node-append installer
+* download **chia-node-append** from [last release](https://github.com/ForestCrazy/chia-node-append/releases/tag/v1.0.0)
+* run **chia-node-append**
 
 ## How to build project
 
