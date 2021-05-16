@@ -20,20 +20,8 @@ const request = require('request');
 
     var node_list_file = 'node_list.txt';
 
-    while (true) {
-        var node_arr = null;
-        if (existsSync(node_list_file)) {
-            var node_arr = readFileSync(node_list_file, function(err, data) {
-                if (err) throw err;
-            }).toString().split('\n');
-        } else {
-            request('https://raw.githubusercontent.com/ForestCrazy/chia-node-append/master/node_list.txt', function(error, response, body) {
-                node_arr = body;
-            });
-        }
-
+    function addNodeConnection(node_arr) {
         const node_obj = Object.assign({}, node_arr);
-
         for (const property in node_obj) {
             console.log(node_obj[property])
             try {
@@ -44,6 +32,20 @@ const request = require('request');
             } catch (exception) {
                 console.log(exception);
             }
+        }
+    }
+
+    while (true) {
+        if (existsSync(node_list_file)) {
+            const node_arr = readFileSync(node_list_file, function(err, data) {
+                if (err) throw err;
+            }).toString().split('\n');
+            addNodeConnection(node_arr);
+        } else {
+            request('https://raw.githubusercontent.com/ForestCrazy/chia-node-append/master/node_list.txt', function(error, response, body) {
+                const node_arr = body.toString().split('\n');
+                addNodeConnection(node_arr);
+            });
         }
     }
 })();
