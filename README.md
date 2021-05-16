@@ -1,7 +1,7 @@
 # Chia-Node-Append
 [![Software License](https://img.shields.io/badge/license-GPL--3.0-brightgreen.svg?style=flat-square)](LICENSE)
 
-Tool to automatically add nodes from a given node list
+Tool to automatically add peer nodes
 
 ## How to build project
 
