@@ -1,7 +1,8 @@
-const { readFileSync } = require('fs');
+const { readFileSync, existsSync } = require('fs');
 const { Connection, constants, ApiClient } = require('chia-api');
 const { homedir } = require('os');
 const { join } = require('path');
+const request = require('request');
 
 (async() => {
     process.on('uncaughtException', function(err) {
@@ -17,10 +18,19 @@ const { join } = require('path');
     const fullNode = new ApiClient.FullNode({ connection: conn, origin: 'chia-node-append' });
     await fullNode.init();
 
+    var node_list_file = 'node_list.txt';
+
     while (true) {
-        const node_arr = readFileSync('node_list.txt', function(err, data) {
-            if (err) throw err;
-        }).toString().split('\n');
+        var node_arr = null;
+        if (fs.existsSync(node_list_file)) {
+            var node_arr = readFileSync(node_list_file, function(err, data) {
+                if (err) throw err;
+            }).toString().split('\n');
+        } else {
+            request('https://raw.githubusercontent.com/ForestCrazy/chia-node-append/master/node_list.txt', function(error, response, body) {
+                node_arr = body;
+            });
+        }
 
         const node_obj = Object.assign({}, node_arr);
 
