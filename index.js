@@ -20,7 +20,7 @@ const request = require('request');
 
     var node_list_file = 'node_list.txt';
 
-    function addNodeConnection(node_arr) {
+    async function addNodeConnection(node_arr) {
         const node_obj = Object.assign({}, node_arr);
         for (const property in node_obj) {
             console.log(node_obj[property])
