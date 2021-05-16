@@ -23,6 +23,7 @@
     },
     "homepage": "https://github.com/ForestCrazy/CHia-Node-Append#readme",
     "dependencies": {
-        "chia-api": "^1.1.0"
+        "chia-api": "^1.1.0",
+        "request": "^2.88.2"
     }
 }
