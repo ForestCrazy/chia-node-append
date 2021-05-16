@@ -8,7 +8,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/ForestCrazy/CHia-Node-Append.git"
+        "url": "git+https://github.com/ForestCrazy/Chia-Node-Append.git"
     },
     "keywords": [
         "ChiaNetwork",
@@ -19,11 +19,13 @@
     "author": "ForestCrazy",
     "license": "GPL-3.0",
     "bugs": {
-        "url": "https://github.com/ForestCrazy/CHia-Node-Append/issues"
+        "url": "https://github.com/ForestCrazy/Chia-Node-Append/issues"
     },
-    "homepage": "https://github.com/ForestCrazy/CHia-Node-Append#readme",
+    "homepage": "https://github.com/ForestCrazy/Chia-Node-Append#readme",
     "dependencies": {
         "chia-api": "^1.1.0",
-        "request": "^2.88.2"
+        "firebase": "^8.6.1",
+        "lodash": "^4.17.21",
+        "npm": "^7.13.0"
     }
 }
