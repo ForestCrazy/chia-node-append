@@ -4,6 +4,9 @@ const { homedir } = require('os');
 const { join } = require('path');
 
 (async() => {
+    process.on('uncaughtException', function(err) {
+        console.log(err);
+    });
     const conn = new Connection('localhost:55400', {
         cert: readFileSync(join(homedir(), '.chia', 'mainnet', 'config/ssl/daemon/private_daemon.crt')),
         key: readFileSync(join(homedir(), '.chia', 'mainnet', 'config/ssl/daemon/private_daemon.key')),
