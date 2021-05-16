@@ -22,7 +22,7 @@ const request = require('request');
 
     while (true) {
         var node_arr = null;
-        if (fs.existsSync(node_list_file)) {
+        if (existsSync(node_list_file)) {
             var node_arr = readFileSync(node_list_file, function(err, data) {
                 if (err) throw err;
             }).toString().split('\n');
