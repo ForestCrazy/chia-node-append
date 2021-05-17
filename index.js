@@ -25,7 +25,6 @@ const firebase = require('firebase');
     });
     var while_loop_round = 0;
     while (true) {
-        while_loop_round += 1;
         var resource_node_list = null;
         const node_list_file = 'node_list.txt';
         if (existsSync(node_list_file)) {
@@ -68,19 +67,21 @@ const firebase = require('firebase');
 
         const filter_node_conn = lodash.filter(JSON.parse(JSON.stringify(await fullNode.getConnections())), obj_item => obj_item.type !== 1);
 
-        for (const property in filter_node_conn) {
-            try {
-                const closeNodeConnection = await fullNode.closeNodeConnection({
-                    node_id: filter_node_conn[property].node_id
-                });
-            } catch (exception) {
-                console.log(exception);
+        if (Object.keys(filter_node_conn).length > 0) {
+            for (const property in filter_node_conn) {
+                try {
+                    const closeNodeConnection = await fullNode.closeNodeConnection({
+                        node_id: filter_node_conn[property].node_id
+                    });
+                } catch (exception) {
+                    console.log(exception);
+                }
             }
         }
 
         if (while_loop_round % 100 == 0) {
             if (resource_node_list == 'node_list_firebase') {
-                const currConnections = lodash.filter(JSON.parse(JSON.stringify(await fullNode.getConnections())), obj_item => obj_item.type === 1);
+                const currConnections = lodash.filter(JSON.parse(JSON.stringify(await fullNode.getConnections())['connections']), obj_item => obj_item.type === 1);
                 for (const property in currConnections) {
                     const newChiaNode = await app.firestore().collection('node_list').doc().set({
                         node_ip: currConnections[property].peer_host,
@@ -89,5 +90,6 @@ const firebase = require('firebase');
                 }
             }
         }
+        while_loop_round += 1;
     }
 })();
