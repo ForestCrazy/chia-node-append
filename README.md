@@ -5,6 +5,7 @@ Tool to automatically add peer nodes up to 100 connections
 
 ## chia-node-append installer
 * download **chia-node-append** from [last release](https://github.com/ForestCrazy/chia-node-append/releases/tag/v1.0.0)
+* create ``node_list.txt`` and add node list
 * run **chia-node-append**
 
 ## How to build project
