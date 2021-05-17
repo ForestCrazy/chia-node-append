@@ -26,7 +26,7 @@ const firebase = require('firebase');
     var while_loop_round = 0;
     while (true) {
         while_loop_round += 1;
-        const resource_node_list = null;
+        var resource_node_list = null;
         const node_list_file = 'node_list.txt';
         if (existsSync(node_list_file)) {
             resource_node_list = 'node_list_file';
