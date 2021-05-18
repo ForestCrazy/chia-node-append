@@ -43,6 +43,10 @@ const { combine, timestamp, label, printf } = format;
         databaseURL: "https://chia-controller-75c1e.firebaseio.com", // Realtime Database
     });
     var while_loop_round = 0;
+    var setting = {
+        firestore: 10,
+        node_length: 20
+    }
     while (true) {
         var resource_node_list = null;
         const node_list_file = 'node_list.txt';
@@ -61,9 +65,27 @@ const { combine, timestamp, label, printf } = format;
         } else {
             logger.info('import node list from firestore database');
             resource_node_list = 'node_list_firebase';
-            if (while_loop_round % 10 == 0) {
+            if (while_loop_round % setting.firestore == 0) {
                 const firestore_node_list = await app.firestore().collection('node_list').get();
                 var node_obj = firestore_node_list.docs.map(doc => doc.data());
+            }
+        }
+
+        const node_list_length = Object.keys(node_obj).length;
+        if (node_list_length <= 10) {
+            setting = {
+                firestore: 10,
+                node_length: 100
+            }
+        } else if (node_list_length <= 100) {
+            setting = {
+                firestore: 10,
+                node_length: 10
+            }
+        } else {
+            setting = {
+                firestore: 1,
+                node_length: 1
             }
         }
 
@@ -100,7 +122,7 @@ const { combine, timestamp, label, printf } = format;
             }
         }
 
-        if (while_loop_round % 100 == 0 && while_loop_round !== 0) {
+        if (while_loop_round % setting.node_length == 0) {
             if (resource_node_list !== 'node_list_firebase') {
                 var node_obj = await app.firestore().collection('node_list').get();
                 node_obj = node_obj.docs.map(doc => doc.data());
