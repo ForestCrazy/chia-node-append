@@ -36,7 +36,7 @@ const firebase = require('firebase');
             for (const property in node_obj) {
                 node_obj[property] = {
                     node_ip: node_obj[property].split(':')[0],
-                    node_port: node_obj[property].split(':')[1].replace('\r', '')
+                    node_port: parseInt(node_obj[property].split(':')[1])
                 }
             }
         } else {
@@ -69,17 +69,19 @@ const firebase = require('firebase');
 
         if (Object.keys(filter_node_conn).length > 0) {
             for (const property in filter_node_conn) {
-                try {
-                    const closeNodeConnection = await fullNode.closeNodeConnection({
-                        node_id: filter_node_conn[property].node_id
-                    });
-                } catch (exception) {
-                    console.log(exception);
+                if (filter_node_conn[property].peer_host !== '127.0.0.1') {
+                    try {
+                        const closeNodeConnection = await fullNode.closeNodeConnection({
+                            node_id: filter_node_conn[property].node_id
+                        });
+                    } catch (exception) {
+                        console.log(exception);
+                    }
                 }
             }
         }
 
-        if (while_loop_round % 100 == 0) {
+        if (while_loop_round % 100 == 0 && while_loop_round !== 0) {
             if (resource_node_list == 'node_list_firebase') {
                 const currConnections = lodash.filter(JSON.parse(JSON.stringify(await fullNode.getConnections())['connections']), obj_item => obj_item.type === 1);
                 for (const property in currConnections) {
