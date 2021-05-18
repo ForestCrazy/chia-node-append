@@ -146,3 +146,4 @@ build/
 fetch_node_list.py
 
 # End of https://www.toptal.com/developers/gitignore/api/node,visualstudiocode
+node_list.txt
