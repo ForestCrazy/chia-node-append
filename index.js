@@ -44,17 +44,14 @@ const { combine, timestamp, label, printf } = format;
     });
     var while_loop_round = 0;
     if (existsSync('chia-node-append-setting.json')) {
-        readFileSync('chia-node-append-setting.json', (err, data) => {
-            if (err) throw err;
-            var setting = JSON.parse(data);
-            setting = {
-                node_source: setting.node_source,
-                firestore: setting.firestore.firestore,
-                firestore_update: setting.firestore.update,
-                disconnect_node: setting.disconnect_node,
-                remove_node: setting.remove_node
-            }
-        });
+        const setting_obj = JSON.parse(readFileSync('chia-node-append-setting.json', { encoding: 'utf8', flag: 'r' }));
+        var setting = {
+            node_source: setting_obj.node_source,
+            firestore: setting_obj.firestore.firestore,
+            firestore_update: setting_obj.firestore.update,
+            disconnect_node: setting_obj.disconnect_node,
+            remove_node: setting_obj.remove_node
+        }
     } else {
         var setting = {
             node_source: existsSync('node_list.txt') ? 'node_list.txt' : 'node_list_firestore',
@@ -66,7 +63,7 @@ const { combine, timestamp, label, printf } = format;
     }
     while (true) {
         var resource_node_list = null;
-        if (setting.node_resource == 'node_list_firestore') {
+        if (setting.node_source == 'node_list_firestore') {
             logger.info('import node list from firestore database');
             resource_node_list = 'node_list_firebase';
             if (while_loop_round % setting.firestore == 0) {
@@ -106,7 +103,6 @@ const { combine, timestamp, label, printf } = format;
 
         if (setting.disconnect_node == true) {
             const filter_node_conn = lodash.filter(JSON.parse(JSON.stringify(await fullNode.getConnections()))['connections'], function(node_type) { return node_type.type != 1 });
-
             if (Object.keys(filter_node_conn).length > 0) {
                 for (const property in filter_node_conn) {
                     if (filter_node_conn[property].peer_host !== '127.0.0.1') {
@@ -123,7 +119,7 @@ const { combine, timestamp, label, printf } = format;
             }
         }
 
-        if (setting.remove_node == true) {
+        if (setting.remove_node == true && setting.node_source != 'node_list_firestore') {
             // remove node list
         }
 
