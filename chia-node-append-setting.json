@@ -1,4 +1,5 @@
 {
+    "setting_version": "1.0",
     "node_source": "node_list.txt",
     "firestore": {
         "firestore": 20,

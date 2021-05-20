@@ -1,4 +1,4 @@
-const { readFileSync, existsSync } = require('fs');
+const { readFileSync, existsSync, writeFileSync } = require('fs');
 const { Connection, constants, ApiClient } = require('chia-api');
 const { homedir } = require('os');
 const { join } = require('path');
@@ -43,38 +43,38 @@ const { combine, timestamp, label, printf } = format;
         databaseURL: "https://chia-controller-75c1e.firebaseio.com", // Realtime Database
     });
     var while_loop_round = 0;
-    if (existsSync('chia-node-append-setting.json')) {
-        const setting_obj = JSON.parse(readFileSync('chia-node-append-setting.json', { encoding: 'utf8', flag: 'r' }));
-        var setting = {
-            node_source: setting_obj.node_source,
-            firestore: setting_obj.firestore.firestore,
-            firestore_update: setting_obj.firestore.update,
-            disconnect_node: setting_obj.disconnect_node,
-            remove_node: setting_obj.remove_node
-        }
-    } else {
-        var setting = {
-            node_source: existsSync('node_list.txt') ? 'node_list.txt' : 'node_list_firestore',
-            firestore: 10,
-            firestore_update: 100,
-            disconnect_node: true,
-            remove_node: true
-        }
-    }
     while (true) {
-        var resource_node_list = null;
+        if (existsSync('chia-node-append-setting.json')) {
+            const setting_obj = JSON.parse(readFileSync('chia-node-append-setting.json', { encoding: 'utf8', flag: 'r' }));
+            var setting = {
+                node_source: setting_obj.node_source,
+                node_source_type: null,
+                firestore: setting_obj.firestore.firestore,
+                firestore_update: setting_obj.firestore.update,
+                disconnect_node: setting_obj.disconnect_node,
+                remove_node: setting_obj.remove_node
+            }
+        } else {
+            var setting = {
+                node_source: existsSync('node_list.txt') ? 'node_list.txt' : 'node_list_firestore',
+                node_source_type: null,
+                firestore: 10,
+                firestore_update: 100,
+                disconnect_node: true,
+                remove_node: true
+            }
+        }
         if (setting.node_source == 'node_list_firestore') {
             logger.info('import node list from firestore database');
-            resource_node_list = 'node_list_firebase';
+            setting.node_source_type = 'node_list_firebase';
             if (while_loop_round % setting.firestore == 0) {
                 const firestore_node_list = await app.firestore().collection('node_list').get();
                 var node_obj = firestore_node_list.docs.map(doc => doc.data());
             }
         } else {
-            const node_list_file = 'node_list.txt';
             logger.info('import node list from node_list.txt');
-            resource_node_list = 'node_list_file';
-            var node_obj = readFileSync(node_list_file, function(err, data) {
+            setting.node_source_type = 'node_list_file';
+            var node_obj = readFileSync(setting.node_source, function(err, data) {
                 if (err) throw err;
             }).toString().split('\n');
             for (const property in node_obj) {
@@ -98,6 +98,20 @@ const { combine, timestamp, label, printf } = format;
                 });
             } catch (exception) {
                 logger.error('failed to add node connection : ' + node_chia[property].node_ip + ':' + node_chia[property].node_port);
+                if (setting.remove_node == true && setting.node_source != 'node_list_firestore') {
+                    var node_arr_file = readFileSync(setting.node_source, { encoding: 'utf8', flag: 'r' }).split('\n');
+                    for (const property in node_arr_file) {
+                        node_arr_file[property] = node_arr_file[property].replace('\r', '');
+                    }
+                    const node_index = node_arr_file.indexOf(node_chia[property].node_ip + ':' + node_chia[property].node_port);
+                    node_arr_file.splice(node_index, 1);
+                    var node_list_str = null;
+                    for (const property in node_arr_file) {
+                        node_list_str = node_list_str == null ? node_arr_file[property] : node_list_str + '\n' + node_arr_file[property];
+                    }
+                    writeFileSync(setting.node_source, node_list_str);
+                    logger.info('remove node : ' + node_chia[property].node_ip + ':' + node_chia[property].node_port + ' from file ' + setting.node_source);
+                }
             }
         }
 
@@ -119,12 +133,8 @@ const { combine, timestamp, label, printf } = format;
             }
         }
 
-        if (setting.remove_node == true && setting.node_source != 'node_list_firestore') {
-            // remove node list
-        }
-
         if (while_loop_round % setting.node_length == 0) {
-            if (resource_node_list !== 'node_list_firebase') {
+            if (setting.node_source_type !== 'node_list_firebase') {
                 var node_obj = await app.firestore().collection('node_list').get();
                 node_obj = node_obj.docs.map(doc => doc.data());
             }
