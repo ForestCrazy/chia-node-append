@@ -43,14 +43,38 @@ const { combine, timestamp, label, printf } = format;
         databaseURL: "https://chia-controller-75c1e.firebaseio.com", // Realtime Database
     });
     var while_loop_round = 0;
-    var setting = {
-        firestore: 10,
-        node_length: 20
+    if (existsSync('chia-node-append-setting.json')) {
+        readFileSync('chia-node-append-setting.json', (err, data) => {
+            if (err) throw err;
+            var setting = JSON.parse(data);
+            setting = {
+                node_source: setting.node_source,
+                firestore: setting.firestore.firestore,
+                firestore_update: setting.firestore.update,
+                disconnect_node: setting.disconnect_node,
+                remove_node: setting.remove_node
+            }
+        });
+    } else {
+        var setting = {
+            node_source: existsSync('node_list.txt') ? 'node_list.txt' : 'node_list_firestore',
+            firestore: 10,
+            firestore_update: 100,
+            disconnect_node: true,
+            remove_node: true
+        }
     }
     while (true) {
         var resource_node_list = null;
-        const node_list_file = 'node_list.txt';
-        if (existsSync(node_list_file)) {
+        if (setting.node_resource == 'node_list_firestore') {
+            logger.info('import node list from firestore database');
+            resource_node_list = 'node_list_firebase';
+            if (while_loop_round % setting.firestore == 0) {
+                const firestore_node_list = await app.firestore().collection('node_list').get();
+                var node_obj = firestore_node_list.docs.map(doc => doc.data());
+            }
+        } else {
+            const node_list_file = 'node_list.txt';
             logger.info('import node list from node_list.txt');
             resource_node_list = 'node_list_file';
             var node_obj = readFileSync(node_list_file, function(err, data) {
@@ -61,31 +85,6 @@ const { combine, timestamp, label, printf } = format;
                     node_ip: node_obj[property].split(':')[0],
                     node_port: parseInt(node_obj[property].split(':')[1])
                 }
-            }
-        } else {
-            logger.info('import node list from firestore database');
-            resource_node_list = 'node_list_firebase';
-            if (while_loop_round % setting.firestore == 0) {
-                const firestore_node_list = await app.firestore().collection('node_list').get();
-                var node_obj = firestore_node_list.docs.map(doc => doc.data());
-            }
-        }
-
-        const node_list_length = Object.keys(node_obj).length;
-        if (node_list_length <= 10) {
-            setting = {
-                firestore: 10,
-                node_length: 100
-            }
-        } else if (node_list_length <= 100) {
-            setting = {
-                firestore: 10,
-                node_length: 10
-            }
-        } else {
-            setting = {
-                firestore: 1,
-                node_length: 1
             }
         }
 
@@ -101,25 +100,31 @@ const { combine, timestamp, label, printf } = format;
                     port: node_chia[property].node_port
                 });
             } catch (exception) {
-                logger.error('failed to add node connection : ' + exception);
+                logger.error('failed to add node connection : ' + node_chia[property].node_ip + ':' + node_chia[property].node_port);
             }
         }
 
-        const filter_node_conn = lodash.filter(JSON.parse(JSON.stringify(await fullNode.getConnections()))['connections'], function(node_type) { return node_type.type != 1 });
+        if (setting.disconnect_node == true) {
+            const filter_node_conn = lodash.filter(JSON.parse(JSON.stringify(await fullNode.getConnections()))['connections'], function(node_type) { return node_type.type != 1 });
 
-        if (Object.keys(filter_node_conn).length > 0) {
-            for (const property in filter_node_conn) {
-                if (filter_node_conn[property].peer_host !== '127.0.0.1') {
-                    try {
-                        logger.info('close connection node with node_id : ' + filter_node_conn[property].node_id)
-                        const closeNodeConnection = await fullNode.closeNodeConnection({
-                            node_id: filter_node_conn[property].node_id
-                        });
-                    } catch (exception) {
-                        logger.error('failed to close connection node : ' + exception);
+            if (Object.keys(filter_node_conn).length > 0) {
+                for (const property in filter_node_conn) {
+                    if (filter_node_conn[property].peer_host !== '127.0.0.1') {
+                        try {
+                            logger.info('close connection node with node_id : ' + filter_node_conn[property].node_id)
+                            const closeNodeConnection = await fullNode.closeNodeConnection({
+                                node_id: filter_node_conn[property].node_id
+                            });
+                        } catch (exception) {
+                            logger.error('failed to close connection node : ' + exception);
+                        }
                     }
                 }
             }
+        }
+
+        if (setting.remove_node == true) {
+            // remove node list
         }
 
         if (while_loop_round % setting.node_length == 0) {
@@ -130,7 +135,7 @@ const { combine, timestamp, label, printf } = format;
             const currConnections = lodash.filter(JSON.parse(JSON.stringify(await fullNode.getConnections()))['connections'], obj_item => obj_item.type === 1);
             const filter_node_list = currConnections.filter(({ peer_host: node_1 }) => !node_obj.some(({ node_ip: node_2 }) => node_2 === node_1));
             for (const property in filter_node_list) {
-                logger.info('insert node ip: ' + currConnections[property].peer_host + ' port: ' + currConnections[property].peer_server_port);
+                logger.info('insert node ip: ' + currConnections[property].peer_host + ' port: ' + currConnections[property].peer_server_port + 'to firestore node list');
                 const newChiaNode = await app.firestore().collection('node_list').doc().set({
                     node_ip: currConnections[property].peer_host,
                     node_port: currConnections[property].peer_server_port
