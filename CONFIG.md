@@ -21,5 +21,5 @@ setting file version
 disconnect if the node you are connecting is not a full node
 
 ## remove_node (boolean)
-* remove a node that connot connect to
+* remove a node that cannot connect to
 * required when you define **node_source** as `node_list_firestore`
