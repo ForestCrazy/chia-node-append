@@ -5,7 +5,8 @@ Tool to automatically add peer nodes up to 100 connections
 
 ## chia-node-append installer
 * download **chia-node-append** from [last release](https://github.com/ForestCrazy/chia-node-append/releases/tag/v1.2.0)
-* [optional] create ``node_list.txt`` and add node list [(example ``node_list.txt`` file)](https://github.com/ForestCrazy/chia-node-append/blob/master/node_list.txt) if you do not create the file `node_list.txt` script will find node list from firestore database and add peer node
+* [optional] create `node_list.txt` and add node list [(example `node_list.txt` file)](https://github.com/ForestCrazy/chia-node-append/blob/master/node_list.txt) if you do not create the file `node_list.txt` script will find node list from firestore database
+* [optional] create `chia-node-append-setting.json` and copy setting from [chia-node-append-setting.json](https://github.com/ForestCrazy/chia-node-append/blob/master/chia-node-append-setting.json) if you do not create the file `chia-node-append-setting.json` script will use default setting
 * run **chia-node-append**
 
 ## How to build project

@@ -1,0 +1,10 @@
+{
+    "setting_version": "1.0",
+    "node_source": "node_list.txt",
+    "firestore": {
+        "firestore": 20,
+        "firestore_update": 100
+    },
+    "disconnect_node": true,
+    "remove_node": true
+}
