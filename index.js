@@ -45,16 +45,18 @@ const { combine, timestamp, label, printf } = format;
     var while_loop_round = 0;
     while (true) {
         if (existsSync('chia-node-append-setting.json')) {
+            logger.info('use setting from chia-node-append-setting.json');
             const setting_obj = JSON.parse(readFileSync('chia-node-append-setting.json', { encoding: 'utf8', flag: 'r' }));
             var setting = {
                 node_source: setting_obj.node_source,
                 node_source_type: null,
                 firestore: setting_obj.firestore.firestore,
-                firestore_update: setting_obj.firestore.update,
+                firestore_update: setting_obj.firestore.firestore_update,
                 disconnect_node: setting_obj.disconnect_node,
                 remove_node: setting_obj.remove_node
             }
         } else {
+            logger.info('use default setting');
             var setting = {
                 node_source: existsSync('node_list.txt') ? 'node_list.txt' : 'node_list_firestore',
                 node_source_type: null,

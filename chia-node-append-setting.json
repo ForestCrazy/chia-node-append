@@ -3,7 +3,7 @@
     "node_source": "node_list.txt",
     "firestore": {
         "firestore": 20,
-        "irestore_update": 100
+        "firestore_update": 100
     },
     "disconnect_node": true,
     "remove_node": true
