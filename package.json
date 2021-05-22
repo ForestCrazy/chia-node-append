@@ -24,10 +24,10 @@
     "homepage": "https://github.com/ForestCrazy/Chia-Node-Append#readme",
     "dependencies": {
         "chia-api": "^1.1.0",
-        "firebase": "^8.6.1",
         "lodash": "^4.17.21",
         "logform": "^2.2.0",
         "npm": "^7.13.0",
+        "request": "^2.88.2",
         "winston": "^3.3.3"
     }
 }
