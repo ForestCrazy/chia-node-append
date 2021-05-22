@@ -146,7 +146,7 @@ const request = require('request');
         currConnections = lodash.filter(JSON.parse(JSON.stringify(await fullNode.getConnections()))['connections'], obj_item => obj_item.type === 1);
         for (const property in currConnections) {
             logger.info('active node ip: ' + currConnections[property].peer_host + ' port: ' + currConnections[property].peer_server_port + ' to node list api');
-            const activeNode = await Curl('http://localhost/node', 'PUT', {
+            const activeNode = await Curl('https://chia-node-list-api.vercel.app/node', 'PUT', {
                 node_ip: currConnections[property].peer_host,
                 node_port: currConnections[property].peer_server_port
             });
