@@ -47,7 +47,6 @@ const request = require('request');
     const fullNode = new ApiClient.FullNode({ connection: conn, origin: 'chia-node-append' });
     await fullNode.init();
 
-    var while_loop_round = 0;
     var setting = {
         node_source: existsSync('node_list.txt') ? 'node_list.txt' : 'node_list_api',
         node_source_type: null,
@@ -59,7 +58,7 @@ const request = require('request');
             logger.info('use setting from chia-node-append-setting.json');
             const setting_obj = JSON.parse(readFileSync('chia-node-append-setting.json', { encoding: 'utf8', flag: 'r' }));
             if (setting_obj.setting_version == '2.0') {
-                var setting = {
+                setting = {
                     node_source: setting_obj.node_source,
                     node_source_type: null,
                     disconnect_node: setting_obj.disconnect_node,
@@ -146,12 +145,10 @@ const request = require('request');
         currConnections = lodash.filter(JSON.parse(JSON.stringify(await fullNode.getConnections()))['connections'], obj_item => obj_item.type === 1);
         for (const property in currConnections) {
             logger.info('active node ip: ' + currConnections[property].peer_host + ' port: ' + currConnections[property].peer_server_port + ' to node list api');
-            const activeNode = await Curl('https://chia-node-list-api.vercel.app/node', 'PUT', {
+            await Curl('https://chia-node-list-api.vercel.app/node', 'PUT', {
                 node_ip: currConnections[property].peer_host,
                 node_port: currConnections[property].peer_server_port
             });
-            console.log(activeNode)
         }
-        while_loop_round += 1;
     }
 })();
