@@ -49,7 +49,6 @@ const request = require('request');
 
     var setting = {
         node_source: existsSync('node_list.txt') ? 'node_list.txt' : 'node_list_api',
-        node_source_type: null,
         disconnect_node: true,
         remove_node: true
     }
@@ -71,25 +70,24 @@ const request = require('request');
         } else {
             logger.info('use default setting');
         }
-        if (setting.node_source == 'node_list_api') {
-            logger.info('import node list from chia-node-list-api');
-            setting.node_source_type = 'node_list_firebase';
-            var node_obj = JSON.parse(await Curl('https://chia-node-list-api.vercel.app/node'));
-        } else {
+        logger.info('import node list from chia-node-list-api');
+        var node_obj = JSON.parse(await Curl('https://chia-node-list-api.vercel.app/node'));
+        if (setting.node_source.includes('.')) {
             logger.info('import node list from ' + setting.node_source);
             let node_source = '';
             if (existsSync(setting.node_source)) {
                 node_source = setting.node_source;
-            } else if (existsSync)
-                setting.node_source_type = 'node_list_file';
-            var node_obj = readFileSync(setting.node_source, function(err, data) {
-                if (err) throw err;
-            }).toString().split('\n');
-            for (const property in node_obj) {
-                node_obj[property] = {
-                    node_ip: node_obj[property].split(':')[0],
-                    node_port: parseInt(node_obj[property].split(':')[1])
+                var node_list_file = readFileSync(setting.node_source, function(err, data) {
+                    if (err) throw err;
+                }).toString().split('\n');
+                for (const property in node_list_file) {
+                    node_obj.push({
+                        node_ip: node_list_file[property].split(':')[0],
+                        node_port: parseInt(node_list_file[property].split(':')[1])
+                    });
                 }
+            } else {
+                logger.error('failed to import node list from ' + setting.node_source + ' node list file not found');
             }
         }
 
@@ -106,7 +104,7 @@ const request = require('request');
                 });
             } catch (exception) {
                 logger.error('failed to add node connection : ' + node_chia[property].node_ip + ':' + node_chia[property].node_port);
-                if (setting.remove_node == true && setting.node_source != 'node_list_api') {
+                if (setting.remove_node == true) {
                     var node_arr_file = readFileSync(setting.node_source, { encoding: 'utf8', flag: 'r' }).split('\n');
                     for (const property in node_arr_file) {
                         node_arr_file[property] = node_arr_file[property].replace('\r', '');
