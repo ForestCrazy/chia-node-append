@@ -80,10 +80,11 @@ const request = require('request');
                 var node_list_file = readFileSync(setting.node_source, function(err, data) {
                     if (err) throw err;
                 }).toString().split('\n');
-                for (const property in node_list_file) {
+                const node_filter = node_list_file.filter(({ node_ip: node_2 }) => !node_obj.some(({ node_ip: node_1 }) => node_1 === node_2));
+                for (const property in node_filter) {
                     node_obj.push({
-                        node_ip: node_list_file[property].split(':')[0],
-                        node_port: parseInt(node_list_file[property].split(':')[1])
+                        node_ip: node_filter[property].split(':')[0],
+                        node_port: node_filter[property].split(':')[1] ? parseInt(node_list_file[property].split(':')[1]) : 8444
                     });
                 }
             } else {
