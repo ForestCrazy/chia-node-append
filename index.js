@@ -84,7 +84,8 @@ const request = require('request');
                 for (const property in node_filter) {
                     node_obj.push({
                         node_ip: node_filter[property].split(':')[0],
-                        node_port: node_filter[property].split(':')[1] ? parseInt(node_list_file[property].split(':')[1]) : 8444
+                        node_port: node_filter[property].split(':')[1] ? parseInt(node_list_file[property].split(':')[1]) : 8444,
+                        node_source_type: 'node_list_file'
                     });
                 }
             } else {
@@ -105,19 +106,25 @@ const request = require('request');
                 });
             } catch (exception) {
                 logger.error('failed to add node connection : ' + node_chia[property].node_ip + ':' + node_chia[property].node_port);
-                if (setting.remove_node == true) {
-                    var node_arr_file = readFileSync(setting.node_source, { encoding: 'utf8', flag: 'r' }).split('\n');
-                    for (const property in node_arr_file) {
-                        node_arr_file[property] = node_arr_file[property].replace('\r', '');
+                if (setting.remove_node == true && setting.node_source.includes('.') && chia_node[property].hasOwnProperty('node_source_type')) {
+                    if (chia_node[property].node_source_type === 'node_list_file') {
+                        var node_arr_file = readFileSync(setting.node_source, { encoding: 'utf8', flag: 'r' }).split('\n');
+                        for (const property in node_arr_file) {
+                            node_arr_file[property] = node_arr_file[property].replace('\r', '');
+                        }
+                        const node_index = node_arr_file.indexOf(node_chia[property].node_ip + ':' + node_chia[property].node_port);
+                        node_arr_file.splice(node_index, 1);
+                        var node_list_str = null;
+                        for (const property in node_arr_file) {
+                            node_list_str = node_list_str == null ? node_arr_file[property] : node_list_str + '\n' + node_arr_file[property];
+                        }
+                        writeFileSync(setting.node_source, node_list_str, 'utf8', function(err) {
+                            if (err) {
+                                logger.error('failed to remove node ' + err);
+                            }
+                        });
+                        logger.info('remove node : ' + node_chia[property].node_ip + ':' + node_chia[property].node_port + ' from file ' + setting.node_source);
                     }
-                    const node_index = node_arr_file.indexOf(node_chia[property].node_ip + ':' + node_chia[property].node_port);
-                    node_arr_file.splice(node_index, 1);
-                    var node_list_str = null;
-                    for (const property in node_arr_file) {
-                        node_list_str = node_list_str == null ? node_arr_file[property] : node_list_str + '\n' + node_arr_file[property];
-                    }
-                    writeFileSync(setting.node_source, node_list_str);
-                    logger.info('remove node : ' + node_chia[property].node_ip + ':' + node_chia[property].node_port + ' from file ' + setting.node_source);
                 }
             }
             logger.info('current connections : ' + (Object.keys(JSON.parse(JSON.stringify(await fullNode.getConnections()))['connections']).length).toString());
