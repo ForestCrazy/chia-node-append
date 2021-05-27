@@ -1,10 +1,6 @@
 {
     "setting_version": "2.0",
-    "node_source": "node_list_api",
-    "firestore": {
-        "firestore": 20,
-        "firestore_update": 100
-    },
+    "node_source": "node_list.txt",
     "disconnect_node": true,
     "remove_node": true
 }
