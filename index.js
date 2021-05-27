@@ -106,8 +106,8 @@ const request = require('request');
                 });
             } catch (exception) {
                 logger.error('failed to add node connection : ' + node_chia[property].node_ip + ':' + node_chia[property].node_port);
-                if (setting.remove_node == true && setting.node_source.includes('.') && chia_node[property].hasOwnProperty('node_source_type')) {
-                    if (chia_node[property].node_source_type === 'node_list_file') {
+                if (setting.remove_node == true && setting.node_source.includes('.') && node_chia[property].hasOwnProperty('node_source_type')) {
+                    if (node_chia[property].node_source_type === 'node_list_file') {
                         var node_arr_file = readFileSync(setting.node_source, { encoding: 'utf8', flag: 'r' }).split('\n');
                         for (const property in node_arr_file) {
                             node_arr_file[property] = node_arr_file[property].replace('\r', '');
