@@ -16,7 +16,10 @@ const request = require('request');
                 url: url,
                 formData: form
             }, function(err, resp, body) {
-                if (err) resolve('Error');
+                if (err) {
+                    logger.error('failed to active chia node');
+                    resolve('Error');
+                }
                 if (body) resolve(body);
             });
         });
