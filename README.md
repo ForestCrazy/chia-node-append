@@ -16,7 +16,8 @@ Tool to automatically add peer nodes up to 100 connections
 ```bash
 git clone https://github.com/ForestCrazy/chia-node-append.git
 cd .chia-node-append
-npm install pkg
+npm install
+npm install -g pkg
 pkg index.js
 ```
 
